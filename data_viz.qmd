@@ -1,0 +1,95 @@
+---
+title: "data_viz"
+format: html
+editor: visual
+---
+
+## 
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(janitor) # expedite cleaning and exploring data
+library(scales) # scale functions for visualization
+library(leaflet) # interactive maps
+library(DT) # interactive tables
+```
+
+```{r}
+escape_raw <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Af119a05b-bbe7-4aea-93c6-85434dcb1c5e")
+```
+
+exploring data
+
+```{r}
+ ## Check out column names
+colnames(escape_raw)
+
+## Peak at each column and class
+glimpse(escape_raw)
+
+## From when to when
+range(escape_raw$sampleDate)
+
+## Which species?
+unique(escape$Species)
+```
+
+##Cleaning data
+
+column names
+
+```{r}
+escape <- escape_raw %>% 
+    janitor::clean_names()
+colnames(escape)
+```
+
+Calculate annual escapement
+
+```{r}
+annual_esc <- escape %>% 
+  separate(sample_date, c("year", "month", "day"), sep = "-") %>% 
+  mutate(year = as.numeric(year)) %>% 
+  group_by(species, sasap_region, year) %>% 
+  summarize(escapement = sum(daily_count)) %>% 
+  filter(species %in% c("Chinook", "Sockeye", "Chum", "Coho", "Pink"))
+
+unique(annual_esc$species)
+head (annual_esc)
+```
+
+Variants of graphs
+
+```{r}
+## Option 1 - data and mapping called in the ggplot() function
+ggplot(data = annual_esc,
+       aes(x = species, y = escapement)) +
+    geom_col()
+
+## Option 2 - data called in ggplot function; mapping called in geom
+ggplot(data = annual_esc) +
+    geom_col(aes(x = species, y = escapement))
+
+
+## Option 3 - data and mapping called in geom
+ggplot() +
+    geom_col(data = annual_esc,
+             aes(x = species, y = escapement, fill = 'blue'))
+
+ggplot(annual_esc,
+       aes(x = species, y = escapement)) +
+    geom_col(fill = "blue")
+```
+
+```{r}
+annual_esc %>%
+    filter(year == 1974,
+          species %in% c("Chum", "Pink")) %>%
+    ggplot(aes(x = species, y = escapement)) +
+    geom_boxplot()
+```
+
+making blue
