@@ -77,11 +77,74 @@ ggplot(data = annual_esc) +
 ## Option 3 - data and mapping called in geom
 ggplot() +
     geom_col(data = annual_esc,
-             aes(x = species, y = escapement, fill = 'blue'))
+             aes(x = species, y = escapement, fill = sasap_region))
 
 ggplot(annual_esc,
        aes(x = species, y = escapement)) +
     geom_col(fill = "blue")
+```
+
+create multiple plots
+
+subsetting data
+
+```{r}
+annual_esc_2000 <- annual_esc %>% 
+  filter(year %in% c(2000:2016))
+
+unique(annual_esc_2000$year)
+
+
+```
+
+```{r}
+## Plot with facets
+ggplot(annual_esc_2000,
+       aes(x = year,
+           y = escapement,
+           color = species)) +
+    geom_line() +
+    geom_point() +
+    facet_wrap( ~ sasap_region,
+                scales = "free_y")
+```
+
+```{r}
+my_theme <- theme_light() +
+    theme(legend.position = "bottom",
+          legend.title = element_blank())
+```
+
+```{r}
+ggplot(annual_esc_2000,
+       aes(x = year,
+           y = escapement,
+           color = species)) +
+    geom_line() +
+    geom_point() +
+    facet_wrap( ~ sasap_region,
+                scales = "free_y") +
+    labs(title = "Annual Salmon Escapement by Region",
+         y = "Escapement") +
+    my_theme
+```
+
+```{r}
+## Useful baseline themes are
+ggplot(annual_esc_2000,
+       aes(x = year,
+           y = escapement,
+           color = species)) +
+    geom_line() +
+    geom_point() +
+    scale_x_continuous(breaks = seq(2000, 2016, 2)) +
+    facet_wrap( ~ sasap_region,
+                scales = "free_y") +
+    labs(title = "Annual Salmon Escapement by Region",
+         y = "Escapement") +
+    my_theme +
+    theme(axis.text.x = element_text(angle = 45,
+                                     vjust = 0.5))
 ```
 
 ```{r}
@@ -91,5 +154,3 @@ annual_esc %>%
     ggplot(aes(x = species, y = escapement)) +
     geom_boxplot()
 ```
-
-making blue
