@@ -224,3 +224,4 @@ leaflet(location) %>%
         opacity = 1
     )
 ```
+
